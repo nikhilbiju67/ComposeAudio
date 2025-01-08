@@ -102,15 +102,3 @@ android {
 dependencies {
     debugImplementation(compose.uiTooling)
 }
-
-compose.desktop {
-    application {
-        mainClass = "com.nikhilbiju67.audio.MainKt"
-
-        nativeDistributions {
-            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "com.nikhilbiju67.audio"
-            packageVersion = "1.0.0"
-        }
-    }
-}
