@@ -70,7 +70,6 @@ kotlin {
             implementation(libs.androidx.lifecycle.runtime.compose)
             implementation(project(":lib"))
             implementation(libs.wavy.slider)
-            implementation(libs.kamel.image.default)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
