@@ -12,6 +12,7 @@ expect class AudioPlayer(
     fun play(url: String)
     fun playerState(): PlayerState
     fun cleanUp()
+    fun seek(position: Float)
 
 // Flow to observe media status
 }

@@ -27,6 +27,7 @@ actual class AudioPlayer actual constructor(
     private val _playerState = MutableStateFlow(playerState)
 
     private var progressJob: Job? = null
+    private  var currentPlayingResource: String? = null
 
     private val listener = object : Player.Listener {
         override fun onPlaybackStateChanged(playbackState: Int) {
@@ -40,7 +41,7 @@ actual class AudioPlayer actual constructor(
                 Player.STATE_READY -> {
                     onReadyCallback()
                     playerState.isBuffering = false
-                    playerState.duration = (mediaPlayer.duration / 1000).toInt()
+                    playerState.duration = (mediaPlayer.duration / 1000).toFloat()
                     updateMediaStatus()
                 }
             }
@@ -61,6 +62,7 @@ actual class AudioPlayer actual constructor(
         if (url == null) {
             return
         }
+        currentPlayingResource = url
         val mediaItem = if (isLocalFile(url)) {
             MediaItem.fromUri("file://$url")
         } else {
@@ -72,7 +74,7 @@ actual class AudioPlayer actual constructor(
         mediaPlayer.play()
 
         playerState.isPlaying = true
-        playerState.duration = (mediaPlayer.duration / 1000).toInt()
+        playerState.duration = (mediaPlayer.duration / 1000).toFloat()
         updateMediaStatus()
     }
 
@@ -83,7 +85,9 @@ actual class AudioPlayer actual constructor(
     }
 
     actual fun cleanUp() {
+        mediaPlayer.stop()
         mediaPlayer.release()
+        currentPlayingResource = null
         mediaPlayer.removeListener(listener)
         stopProgressUpdates()
     }
@@ -96,7 +100,7 @@ actual class AudioPlayer actual constructor(
                 val progressInPercentage =
                     mediaPlayer.currentPosition.toFloat() / mediaPlayer.duration.toFloat()
                 _playerState.value = _playerState.value.copy(
-                    currentTime = (mediaPlayer.currentPosition / 1000).toInt(),
+                    currentTime = (mediaPlayer.currentPosition / 1000).toFloat(),
                     isPlaying = playerState.isPlaying,
                     isBuffering = playerState.isBuffering,
                     duration = playerState.duration
@@ -122,12 +126,16 @@ actual class AudioPlayer actual constructor(
 
     private fun updateMediaStatus() {
         _playerState.value = _playerState.value.copy(
-            currentTime = (mediaPlayer.currentPosition / 1000).toInt(),
+            currentTime = (mediaPlayer.currentPosition / 1000).toFloat(),
             isPlaying = playerState.isPlaying,
             isBuffering = playerState.isBuffering,
             duration = playerState.duration
         )
         onProgressCallback(playerState)
+    }
+
+    actual fun seek(position:Float) {
+        mediaPlayer.seekTo(position.toLong() * 1000)
     }
 }
 

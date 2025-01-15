@@ -1,6 +1,7 @@
 package com.nikhilbiju67.audio
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 
 
 @Composable
@@ -11,6 +12,15 @@ actual fun AudioProvider(
     val audioPlayer =
         AudioPlayer(onProgressCallback = {
             audioUpdates.onProgressUpdate(it)
-        }, playerState = PlayerState(), onErrorCallback = {}, onReadyCallback = {}, context = null)
+        }, playerState = PlayerState(), onErrorCallback = {
+            audioUpdates.onError(it)
+        }, onReadyCallback = {
+            audioUpdates.onReady()
+        }, context = null)
+    DisposableEffect(Unit) {
+        onDispose {
+            audioPlayer.cleanUp()
+        }
+    }
     composable(audioPlayer)
 }

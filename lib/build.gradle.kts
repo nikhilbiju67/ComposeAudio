@@ -9,6 +9,7 @@ plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
+    id("com.vanniktech.maven.publish") version "0.30.0"
 }
 
 kotlin {
@@ -51,13 +52,14 @@ kotlin {
         }
         binaries.executable()
     }
-    
+
     sourceSets {
         val desktopMain by getting
-        
+
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
+            implementation(libs.androidx.media3.exoplayer)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -72,6 +74,12 @@ kotlin {
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutines.swing)
+            implementation("uk.co.caprica:vlcj:4.7.0") // vlcj library
+            implementation("uk.co.caprica:vlcj-natives:4.7.0") // Native libraries for vlcj
+        }
+        wasmJsMain.dependencies {
+            implementation("org.jetbrains.kotlinx:kotlinx-browser:0.3")
+            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
         }
     }
 }

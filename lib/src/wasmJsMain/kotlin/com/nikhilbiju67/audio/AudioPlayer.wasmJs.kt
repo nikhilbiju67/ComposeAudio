@@ -13,20 +13,23 @@ actual class AudioPlayer actual constructor(
     private val playerState: PlayerState,
     context: Any?,
 ) {
+    private var currentPlayingResource: String? = null
     private val audioElement = document.createElement("audio") as HTMLAudioElement
     private var currentUrl: String? = null
     private val _playerState = MutableStateFlow(playerState)
     actual fun play(url: String) {
-        _playerState.update {
-            it.copy(
-                isPlaying = true,
-            )
-        }
-        setupListeners()
         if (url != currentUrl) {
             currentUrl = url
             audioElement.src = if (isLocalFile(url)) "file://$url" else url
         }
+        _playerState.update {
+            it.copy(
+                isPlaying = true,
+                currentPlayingResource = url,
+            )
+        }
+        setupListeners()
+
         audioElement.play()
 
         onProgressCallback(_playerState.value)
@@ -36,10 +39,11 @@ actual class AudioPlayer actual constructor(
         audioElement.addEventListener("timeupdate", {
 
             _playerState.value = _playerState.value.copy(
-                currentTime = audioElement.currentTime.toInt(),
-                duration = audioElement.duration.toInt(),
+                currentTime = audioElement.currentTime.toFloat(),
+                duration = audioElement.duration.toFloat(),
                 isPlaying = _playerState.value.isPlaying,
-                isBuffering = false
+                isBuffering = false,
+                currentPlayingResource = currentUrl
             )
 
             onProgressCallback(_playerState.value)
@@ -50,8 +54,9 @@ actual class AudioPlayer actual constructor(
             currentUrl = null
             _playerState.value = _playerState.value.copy(
                 isPlaying = false,
-                currentTime = 0,
-                duration = 0,
+                currentTime = 0f,
+                duration = 0f,
+                currentPlayingResource = currentUrl
             )
             onProgressCallback(_playerState.value)
         })
@@ -86,6 +91,10 @@ actual class AudioPlayer actual constructor(
 
     actual fun playerState(): PlayerState {
         return playerState
+    }
+
+    actual fun seek(position: Float) {
+        audioElement.currentTime = position.toDouble()
     }
 
 }

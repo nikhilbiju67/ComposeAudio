@@ -7,4 +7,6 @@ expect fun AudioProvider( audioUpdates: AudioUpdates,composable: @Composable (Au
 
 interface AudioUpdates {
     fun onProgressUpdate(playerState: PlayerState)
+    fun onReady()
+    fun onError(exception: Exception)
 }

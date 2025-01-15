@@ -17,6 +17,7 @@ actual class AudioPlayer actual constructor(
 ) {
 
     private var mediaPlayer: MediaPlayer? = null
+    private var currentPlayingResource: String? = null
 
     init {
         initializeMediaPlayer()
@@ -30,14 +31,15 @@ actual class AudioPlayer actual constructor(
         (mediaPlayer as EmbeddedMediaPlayer?)?.videoSurface()?.set(null) // No video output needed
         mediaPlayer?.events()?.addMediaPlayerEventListener(object : MediaPlayerEventAdapter() {
             override fun timeChanged(mediaPlayer: MediaPlayer?, newTime: Long) {
-                playerState.currentTime = (newTime / 1000).toInt()
+                playerState.currentTime = (newTime / 1000).toFloat()
                 playerState.duration =
-                    ((mediaPlayer?.media()?.info()?.duration() ?: 0) / 1000).toInt()
+                    ((mediaPlayer?.media()?.info()?.duration() ?: 0) / 1000).toFloat()
                 onProgressCallback(
                     PlayerState(
                         isPlaying = playerState.isPlaying,
                         currentTime = playerState.currentTime,
                         duration = playerState.duration,
+                        currentPlayingResource = currentPlayingResource
                     )
                 )
 //                _mediaStatus.update {
@@ -59,12 +61,13 @@ actual class AudioPlayer actual constructor(
 
             override fun finished(mediaPlayer: MediaPlayer?) {
                 playerState.isPlaying = false
-                playerState.currentTime = 0
+                playerState.currentTime = 0f
                 onProgressCallback(
                     PlayerState(
                         isPlaying = false,
-                        currentTime = 0,
+                        currentTime = 0f,
                         duration = playerState.duration,
+                        currentPlayingResource = null
                     )
                 )
             }
@@ -75,8 +78,9 @@ actual class AudioPlayer actual constructor(
                 onProgressCallback(
                     PlayerState(
                         isPlaying = false,
-                        currentTime = 0,
+                        currentTime = 0f,
                         duration = playerState.duration,
+                        currentPlayingResource = null
                     )
                 )
             }
@@ -86,11 +90,14 @@ actual class AudioPlayer actual constructor(
     actual fun play(url: String) {
         println("Attempting to play: $url")
         if (mediaPlayer?.media()?.play(url) == true)
-            onProgressCallback(
-                playerState.copy(
-                    isPlaying = true,
-                )
+            currentPlayingResource = url
+        onProgressCallback(
+            playerState.copy(
+                isPlaying = true,
+                currentPlayingResource = url
             )
+        )
+
         println("Playback started successfully.")
         playerState.isPlaying = true
         mediaPlayer?.audio()?.setVolume(100) // Set volume to 100%
@@ -112,7 +119,11 @@ actual class AudioPlayer actual constructor(
         mediaPlayer?.release()
 
         playerState.isPlaying = false
-        playerState.currentTime = 0
-        playerState.duration = 0
+        playerState.currentTime = 0f
+        playerState.duration = 0f
+    }
+
+    actual fun seek(position: Float) {
+        mediaPlayer?.controls()?.setPosition(position / 100)
     }
 }
