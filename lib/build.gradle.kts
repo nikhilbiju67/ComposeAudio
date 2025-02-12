@@ -1,3 +1,4 @@
+import com.vanniktech.maven.publish.SonatypeHost
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
@@ -35,7 +36,7 @@ kotlin {
     
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
-        moduleName = "composeApp"
+        moduleName = "library"
         browser {
             val rootDirPath = project.rootDir.path
             val projectDirPath = project.projectDir.path
@@ -109,4 +110,52 @@ android {
 
 dependencies {
     debugImplementation(compose.uiTooling)
+}
+
+mavenPublishing {
+//    publishToMavenCentral(SonatypeHost.DEFAULT)
+//    // or when publishing to https://s01.oss.sonatype.org
+////    publishToMavenCentral(SonatypeHost.S01)
+//    // or when publishing to https://central.sonatype.com/
+//    publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
+
+    signAllPublications()
+
+
+    coordinates("com.example.mylibrary", "mylibrary-runtime", "1.0.3-SNAPSHOT")
+
+    pom {
+        name.set("Compose Audio")
+        description.set("A description of what my library does.")
+        inceptionYear.set("2025")
+        url.set("https://github.com/nikhilbiju67/ComposeAudio")
+        licenses {
+            license {
+                name.set("The Apache License, Version 2.0")
+                url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+                distribution.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+            }
+        }
+        developers {
+            developer {
+                id.set("nikhilbiju67")
+                name.set("Nikhilbiju67")
+                url.set("https://github.com/nikhilbiju67")
+            }
+        }
+        scm {
+            url.set("https://github.com/nikhilbiju67/ComposeAudio")
+            connection.set("scm:git:git://github.com/nikhilbiju67/ComposeAudio.git")
+            developerConnection.set("scm:git:ssh://git@github.com/nikhilbiju67/ComposeAudio.git")
+
+        }
+        issueManagement {
+            system = "GitHub"
+            url = "https://github.com/nikhilbiju67/${project.name}/issues"
+        }
+        ciManagement {
+            system = "GitHub Actions"
+            url = "https://github.com/nikhilbiju67/${project.name}/actions"
+        }
+    }
 }
