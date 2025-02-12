@@ -43,7 +43,7 @@ jobs:
 
       - name: Create and push tag
         run: |
-          git config --global user.email "shubhamsinghshubham777@gmail.com"
+          git config --global user.email "nikhilbiju67@gmail.com"
           git config --global user.name "$GITHUB_ACTOR"
 
           git tag -a $TAG -m "Release v$TAG"
