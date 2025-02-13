@@ -111,6 +111,12 @@ android {
 dependencies {
     debugImplementation(compose.uiTooling)
 }
+// 1. Set the project’s version at the very top of this Gradle file:
+val resolvedVersion = project.findProperty("VERSION_NAME")
+    ?: project.findProperty("ORG_GRADLE_PROJECT_VERSION_NAME")
+    ?: "1.0.3-SNAPSHOT"
+
+project.version = resolvedVersion // Must happen *before* configuring mavenPublishing
 
 mavenPublishing {
 //    publishToMavenCentral(SonatypeHost.DEFAULT)
@@ -122,7 +128,7 @@ mavenPublishing {
     signAllPublications()
 
 
-    coordinates("com.example.mylibrary", "mylibrary-runtime", "1.0.3-SNAPSHOT")
+    coordinates("com.nikhilbiju67.audio", "mylibrary-runtime", project.version.toString())
 
     pom {
         name.set("Compose Audio")
