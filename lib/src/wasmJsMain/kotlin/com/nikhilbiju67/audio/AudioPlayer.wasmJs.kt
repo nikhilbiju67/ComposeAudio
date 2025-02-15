@@ -8,75 +8,85 @@ import org.w3c.dom.HTMLAudioElement
 @Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
 actual class AudioPlayer actual constructor(
     private val onProgressCallback: (PlayerState) -> Unit,
-    onReadyCallback: () -> Unit,
-    onErrorCallback: (Exception) -> Unit,
-    private val playerState: PlayerState,
-    context: Any?,
+    private val onReadyCallback: () -> Unit,
+    private val onErrorCallback: (Exception) -> Unit,
+    context: Any?
 ) {
-    private var currentPlayingResource: String? = null
-    private val audioElement = document.createElement("audio") as HTMLAudioElement
+    private val _playerState = MutableStateFlow(PlayerState())
     private var currentUrl: String? = null
-    private val _playerState = MutableStateFlow(playerState)
+    private val audioElement = document.createElement("audio") as HTMLAudioElement
+
     actual fun play(url: String) {
         if (url != currentUrl) {
             currentUrl = url
             audioElement.src = if (isLocalFile(url)) "file://$url" else url
         }
-        _playerState.update {
-            it.copy(
+        _playerState.update { state ->
+            state.copy(
                 isPlaying = true,
-                currentPlayingResource = url,
+                currentPlayingResource = url
             )
         }
         setupListeners()
 
-        audioElement.play()
+        // Start playback and handle potential promise rejection.
+        audioElement.play().catch { exception ->
+            onErrorCallback(Exception("Audio playback error: $exception"))
+            null
+        }
 
         onProgressCallback(_playerState.value)
     }
 
     private fun setupListeners() {
+        // Trigger the onReady callback when the audio is ready to play.
+        audioElement.addEventListener("canplay", {
+            onReadyCallback()
+        })
+
         audioElement.addEventListener("timeupdate", {
-
-            _playerState.value = _playerState.value.copy(
-                currentTime = audioElement.currentTime.toFloat(),
-                duration = audioElement.duration.toFloat(),
-                isPlaying = _playerState.value.isPlaying,
-                isBuffering = false,
-                currentPlayingResource = currentUrl
-            )
-
+            _playerState.update { state ->
+                state.copy(
+                    currentTime = audioElement.currentTime.toFloat(),
+                    duration = audioElement.duration.toFloat(),
+                    isBuffering = false,
+                    currentPlayingResource = currentUrl
+                )
+            }
             onProgressCallback(_playerState.value)
-
         })
 
         audioElement.addEventListener("ended", {
             currentUrl = null
-            _playerState.value = _playerState.value.copy(
-                isPlaying = false,
-                currentTime = 0f,
-                duration = 0f,
-                currentPlayingResource = currentUrl
-            )
+            _playerState.update { state ->
+                state.copy(
+                    isPlaying = false,
+                    currentTime = 0f,
+                    duration = 0f,
+                    currentPlayingResource = currentUrl
+                )
+            }
             onProgressCallback(_playerState.value)
         })
 
         audioElement.addEventListener("error", {
-            playerState.isPlaying = false
-            // Handle playback error if needed
+            _playerState.update { state ->
+                state.copy(isPlaying = false)
+            }
+            onErrorCallback(Exception("Audio playback error"))
         })
     }
 
     actual fun pause() {
         audioElement.pause()
-        _playerState.value = _playerState.value.copy(
-            isPlaying = false,
-            isBuffering = false
-        )
-
+        _playerState.update { state ->
+            state.copy(
+                isPlaying = false,
+                isBuffering = false
+            )
+        }
         onProgressCallback(_playerState.value)
     }
-
 
     actual fun cleanUp() {
         audioElement.pause()
@@ -85,16 +95,11 @@ actual class AudioPlayer actual constructor(
     }
 
     private fun isLocalFile(path: String): Boolean {
-        // This implementation assumes you have a way to determine if a path is local
+        // Determines if the path is local.
         return path.startsWith("/") || path.startsWith("file://")
-    }
-
-    actual fun playerState(): PlayerState {
-        return playerState
     }
 
     actual fun seek(position: Float) {
         audioElement.currentTime = position.toDouble()
     }
-
 }

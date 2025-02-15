@@ -11,7 +11,7 @@ actual fun AudioProvider(
     val audioPlayer =
         AudioPlayer(onProgressCallback = {
             audioUpdates.onProgressUpdate(it)
-        }, context = null, playerState = PlayerState(), onReadyCallback = {
+        }, context = null, onReadyCallback = {
             audioUpdates.onReady()
         }, onErrorCallback = {
             audioUpdates.onError(it)

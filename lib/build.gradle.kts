@@ -1,5 +1,4 @@
 import com.vanniktech.maven.publish.SonatypeHost
-import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
@@ -75,12 +74,12 @@ kotlin {
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutines.swing)
-            implementation("uk.co.caprica:vlcj:4.7.0") // vlcj library
-            implementation("uk.co.caprica:vlcj-natives:4.7.0") // Native libraries for vlcj
+            implementation(libs.vlcj) // vlcj library
+            implementation(libs.vlcj.natives) // Native libraries for vlcj
         }
         wasmJsMain.dependencies {
-            implementation("org.jetbrains.kotlinx:kotlinx-browser:0.3")
-            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
+            implementation(libs.kotlinx.browser)
+            implementation(libs.kotlinx.coroutines.core)
         }
     }
 }
@@ -128,7 +127,7 @@ mavenPublishing {
     signAllPublications()
 
 
-    coordinates("com.nikhilbiju67.audio", "mylibrary-runtime", project.version.toString())
+    coordinates("com.nikhilbiju67.audio", "nikhilbiju67-compose-audio-runtime", project.version.toString())
 
     pom {
         name.set("Compose Audio")

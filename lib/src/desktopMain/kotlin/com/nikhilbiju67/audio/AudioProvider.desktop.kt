@@ -1,6 +1,5 @@
 package com.nikhilbiju67.audio
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 
@@ -12,7 +11,7 @@ actual fun AudioProvider(
     val audioPlayer =
         AudioPlayer(onProgressCallback = {
             audioUpdates.onProgressUpdate(it)
-        }, context = null, playerState = PlayerState(),onReadyCallback = {
+        }, context = null,onReadyCallback = {
             audioUpdates.onReady()
         }, onErrorCallback = {
             audioUpdates.onError(it)

@@ -6,24 +6,18 @@ import androidx.compose.ui.platform.LocalContext
 
 @Composable
 actual fun AudioProvider(
-    audioUpdates: AudioUpdates,
-    composable: @Composable (AudioPlayer) -> Unit
+    audioUpdates: AudioUpdates, composable: @Composable (AudioPlayer) -> Unit
 ) {
 
     val context = LocalContext.current
-    val audioPlayer =
-        AudioPlayer(
-            onProgressCallback = {
-                audioUpdates.onProgressUpdate(it)
-            }, context = context,
-            onReadyCallback = {
-                audioUpdates.onReady()
-            },
-            onErrorCallback = {
-                audioUpdates.onError(it)
-            },
-            playerState = PlayerState()
-        )
+    val audioPlayer = AudioPlayer(onProgressCallback = {
+        audioUpdates.onProgressUpdate(it)
+    }, context = context, onReadyCallback = {
+        audioUpdates.onReady()
+    }, onErrorCallback = {
+        audioUpdates.onError(it)
+    }
+    )
     DisposableEffect(Unit) {
         onDispose {
             audioPlayer.cleanUp()
