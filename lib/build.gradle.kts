@@ -115,7 +115,7 @@ val resolvedVersion = project.findProperty("ORG_GRADLE_PROJECT_VERSION_NAME")
     ?: "1.0.3-SNAPSHOT"
 
 project.version = resolvedVersion // Must happen *before* configuring mavenPublishing
-
+group = "com.nikhilbiju67.audio"
 mavenPublishing {
 //    publishToMavenCentral(SonatypeHost.DEFAULT)
 //    // or when publishing to https://s01.oss.sonatype.org
@@ -126,7 +126,7 @@ mavenPublishing {
     signAllPublications()
 
 
-    coordinates("com.nikhilbiju67.audio", "nikhilbiju67-compose-audio-runtime", project.version.toString())
+    coordinates("com.nikhilbiju67.audio", "nikhilbiju67-compose-audio-runtime")
 
     pom {
         name.set("Compose Audio")
