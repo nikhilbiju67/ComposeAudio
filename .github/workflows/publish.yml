@@ -24,17 +24,27 @@ jobs:
       - name: Grant Permission to Execute Gradle
         run: chmod +x gradlew
 
-
       - name: Build with Gradle
         uses: gradle/gradle-build-action@v2
-        env:
-          ORG_GRADLE_PROJECT_VERSION_NAME: ${{ github.event.inputs.versionName }}
         with:
           arguments: 'build --warning-mode=all --stacktrace'
-      - name: Debug secret Length
-        run: echo ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGINMEMORYKEYPASSWORD }}
-
-
+      - name: Debug Secret Length
+        run: |
+          echo "🔍 Checking PGP Key and Password..."
+          if [ -z "$ORG_GRADLE_PROJECT_signingInMemoryKey" ]; then
+            echo "❌ Signing Key is NOT set!"
+          else
+            echo "✅ Signing Key is set."
+            echo "Key starts with: $(echo $ORG_GRADLE_PROJECT_signingInMemoryKey | cut -c1-50)..."
+          fi
+          if [ -z "$ORG_GRADLE_PROJECT_signingInMemoryKeyPassword" ]; then
+            echo "❌ Signing Password is NOT set!"
+          else
+            echo "✅ Signing Password is set."
+          fi
+        env:
+          ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGINMEMORYKEY }}
+          ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGINMEMORYKEYPASSWORD }}
 
 
       - name: Publish Library
