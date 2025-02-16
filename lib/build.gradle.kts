@@ -111,8 +111,7 @@ dependencies {
     debugImplementation(compose.uiTooling)
 }
 // 1. Set the project’s version at the very top of this Gradle file:
-val resolvedVersion = project.findProperty("VERSION_NAME")
-    ?: project.findProperty("ORG_GRADLE_PROJECT_VERSION_NAME")
+val resolvedVersion = project.findProperty("ORG_GRADLE_PROJECT_VERSION_NAME")
     ?: "1.0.3-SNAPSHOT"
 
 project.version = resolvedVersion // Must happen *before* configuring mavenPublishing
