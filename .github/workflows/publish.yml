@@ -35,7 +35,7 @@ jobs:
             echo "❌ Signing Key is NOT set!"
           else
             echo "✅ Signing Key is set."
-            echo "Key starts with: $(echo $ORG_GRADLE_PROJECT_signingInMemoryKey | cut -c1-50)..."
+            echo "Key length: $(echo -n $ORG_GRADLE_PROJECT_signingInMemoryKey | wc -c)"
           fi
           if [ -z "$ORG_GRADLE_PROJECT_signingInMemoryKeyPassword" ]; then
             echo "❌ Signing Password is NOT set!"
@@ -45,6 +45,7 @@ jobs:
         env:
           ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGINMEMORYKEY }}
           ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGINMEMORYKEYPASSWORD }}
+
 
 
       - name: Publish Library
